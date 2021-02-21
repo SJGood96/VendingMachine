@@ -6,13 +6,11 @@ changePennies = 0;
 
 $(document).ready(function () {
 
-
     loadItems();
     $('#TotalMoneyIn').val('');
     $('#Messages').val('');
     $('#ItemId').val('');
     $('#Change').val('');
-
 
 });
 
@@ -43,13 +41,10 @@ function loadItems() {
                 info += '<p>' + 'Quantity left: ' + quantity + '</p>';
                 info += '</button></div>';
 
-
                 vendingTable.append(info); 
 
             })
         },
-
-
 
         // create error function to display API error messages
         error: function () {
@@ -84,13 +79,13 @@ function addNickel() {
 }
 
 
-
 //This allows the id to pass through to the ItemId input
 function selectItem(id) {
     $('#ItemId').val(id);
     $('#TotalMoneyIn').val('');
         value = 0;
     $('#Messages').val('');
+    $('#Change').val('');
 }
 
 
@@ -98,26 +93,17 @@ function selectItem(id) {
 function vendItem() {
     id = $('#ItemId').val()
 
-
-
     // Ajax call to POST 
     $.ajax({
-
-
 
         type: 'POST',
         url: 'http://tsg-vending.herokuapp.com/money/' + value + '/item/' + id,
         'success': function (data) {
 
-
             changeQuarters = data.quarters;
             changeDimes = data.dimes;
             changeNickels = data.nickels;
             changePennies = data.pennies;
-
-
-
-          
 
                 //This helps to determine if there is an 's' or not
                 quarterStr = changeQuarters == 1 ? 'quarter' : 'quarters';
@@ -149,23 +135,59 @@ function vendItem() {
             $('#Messages').val('Thank You!!!')
             $('#TotalMoneyIn').val('');   
             value = 0;
-
-
         },
 
         'error': function (xhr, status, error) {
             $('#Messages').val(xhr.responseJSON['message'])
         }
-
-
-
     })
 }
 
 function returnChange() {
-    $('#TotalMoneyIn').val('');
-    value = 0;
+
+    //To find how many coins are in the total
+    quarterNum = Math.floor(value / .25)
+    value = value - quarterNum * .25
+
+    dimesNum = Math.floor(value / .10)
+    value = value - dimesNum * .10
+
+    nickelNum = Math.floor(value / .05)
+    value = value - nickelNum * .05
+
+    penniesNum = Math.floor(value)
+
+   
+
+    //This helps to determine if there is an 's' or not
+    quarterNumStr = quarterNum == 1 ? 'quarter' : 'quarters';
+    dimeNumStr = dimesNum == 1 ? 'dime' : 'dimes';
+    nickelNumStr = nickelNum == 1 ? 'nickel' : 'nickels';
+    penniesNumStr = penniesNum == 1 ? 'penny' : 'pennies';
+
+    formatChange = "";
+
+    //This would determine if variable would show or not plus formats the change in the order that is needed
+    if (quarterNum > 0) {
+        formatChange += quarterNumStr + ':' + quarterNum + ',';
+    };
+
+    if (dimesNum > 0) {
+        formatChange += dimeNumStr + ':' + dimesNum + ',';
+    };
+
+    if (nickelNum > 0) {
+        formatChange += nickelNumStr + ':' + nickelNum + ',';
+    };
+
+    if (penniesNum > 0) {
+        formatChange += penniesNumStr + ':' + penniesNum;
+    };
+
+    $('#Change').val(formatChange);
+
     $('#Messages').val('');
     $('#ItemId').val('');
-    $('#Change').val('');
+    $('#TotalMoneyIn').val('');
+    value = 0;
 };
